@@ -1,0 +1,2 @@
+JobID,SubscriberKey,EventDate,BounceCategory,BounceSubcategory,BounceType,SMTPBounceReason,SMTPCode,TriggererSendDefinitionObjectID
+249317,00QSc00000PYL5FMAX,Oct  5 2025  3:04AM,Soft bounce,Mailbox Full,delayed,5.2.2 (mailbox full) RCPT TO:<test.com> Mailbox disk quota exceeded,552,8AE8B145-6D09-F011-A5F7-F40343DF4D98

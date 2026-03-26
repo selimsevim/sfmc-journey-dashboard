@@ -1,0 +1,2 @@
+JobID,SubscriberKey,EventDate,URL,LinkName,IsUnique,TriggererSendDefinitionObjectID
+328798,2M375A4A,Jan  8 2026  2:13AM,"https://www.example.se/?idcmp=eml:%%=URLEncode(IIF(Empty(__AdditionalEmailAttribute1), IIF(Empty(__AdditionalEmailAttribute2), ""no-campaign"", __AdditionalEmailAttribute2), __AdditionalEmailAttribute1))=%%:::::information:%%=URL",Test,0,28EEDD92-54AF-F011-A5E3-F40343DFEAC8

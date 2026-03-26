@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Deliverability | Redpill Linpro CX</title>
+<script src="/js/config.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-tint": "#f64d50",
+          "primary-container": "#fde4e4",
+          "background": "#fdfdfd",
+          "on-error": "#ffffff",
+          "primary-fixed": "#ffdad9",
+          "on-primary-container": "#41000a",
+          "inverse-on-surface": "#f1f1f1",
+          "surface-container-low": "#f7f7f7",
+          "secondary-fixed-dim": "#6ed8cc",
+          "error": "#ba1a1a",
+          "surface-dim": "#dadada",
+          "surface": "#fdfdfd",
+          "on-secondary-container": "#007169",
+          "surface-container": "#eeeeee",
+          "surface-container-high": "#e8e8e8",
+          "surface-container-lowest": "#ffffff",
+          "primary": "#f64d50",
+          "outline-variant": "#ebdede",
+          "on-secondary": "#ffffff",
+          "tertiary-fixed": "#ffdcc5",
+          "inverse-surface": "#2f3131",
+          "tertiary": "#8e4a0c",
+          "surface-container-highest": "#e2e2e2",
+          "inverse-primary": "#ffb3b4",
+          "secondary": "#006a62",
+          "on-surface-variant": "#534343",
+          "error-container": "#ffdad6",
+          "on-background": "#201a1a",
+          "on-surface": "#201a1a",
+          "on-tertiary": "#ffffff",
+          "outline": "#857373",
+          "tertiary-container": "#ac6224",
+          "secondary-container": "#8bf4e8",
+          "surface-variant": "#f4dddd",
+          "on-primary": "#ffffff",
+          "secondary-fixed": "#8bf4e8"
+        },
+        fontFamily: { "headline": ["Manrope"], "body": ["Manrope"], "label": ["Manrope"] },
+        borderRadius: {"DEFAULT": "0.125rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Manrope', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .kpi-bar { transition: width 0.9s cubic-bezier(.4,0,.2,1); }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+
+<!-- Nav -->
+<header class="bg-white/80 backdrop-blur-md fixed top-0 w-full z-50" style="box-shadow:0 1px 0 #ebdede40">
+<nav class="flex justify-between items-center w-full px-8 py-4">
+  <div class="flex items-center gap-6">
+    <a href="/" class="text-xl font-extrabold tracking-tight text-primary" data-brand>Redpill Linpro CX</a>
+    <div class="hidden md:flex items-center gap-1 text-sm font-medium text-on-surface-variant">
+      <a href="/" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Dashboard</a>
+      <a href="/bounces" class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-bold">Deliverability</a>
+      <a href="/links" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Link Analytics</a>
+      <a href="/settings" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Settings</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="hidden md:flex items-center gap-2 bg-primary/10 text-primary border-none rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-primary transition-all">
+      <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+      <input type="date" id="start-date" class="bg-transparent text-sm text-primary outline-none cursor-pointer">
+      <span class="text-primary/70 text-xs font-bold px-1">to</span>
+      <input type="date" id="end-date" class="bg-transparent text-sm text-primary outline-none cursor-pointer">
+    </div>
+  </div>
+</nav>
+</header>
+
+<main class="pt-32 pb-16 px-8 max-w-[1400px] mx-auto">
+
+  <!-- Hero -->
+  <section class="mb-12">
+    <span class="text-primary font-bold text-xs tracking-widest uppercase mb-2 block">Deliverability Health</span>
+    <h1 class="text-5xl font-extrabold text-on-surface tracking-tight mb-4">Bounce Analysis</h1>
+    <p class="text-on-surface-variant max-w-2xl leading-relaxed">Monitor email deliverability across all journey sends. Diagnose hard and soft bounces, identify recurring issues by SMTP code, and track bounce trends over time.</p>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Total Bounces</span>
+      <span id="b-total" class="text-3xl font-extrabold text-on-surface">-</span>
+    </div>
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-error text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Hard Bounces</span>
+      <span id="b-hard" class="text-3xl font-extrabold text-error">-</span>
+      <div class="mt-3 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="bar-hard" class="kpi-bar bg-error h-full" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-tertiary text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Soft Bounces</span>
+      <span id="b-soft" class="text-3xl font-extrabold text-tertiary">-</span>
+      <div class="mt-3 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="bar-soft" class="kpi-bar bg-tertiary h-full" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-on-surface-variant text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Other / Unknown</span>
+      <span id="b-unknown" class="text-3xl font-extrabold text-on-surface-variant">-</span>
+      <div class="mt-3 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="bar-unknown" class="kpi-bar bg-outline h-full" style="width:0%"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts Row -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+
+    <!-- Bounce Trend -->
+    <div class="xl:col-span-2 bg-surface-container-lowest rounded-2xl p-6">
+      <div class="mb-5">
+        <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Over Time</span>
+        <h3 class="text-lg font-bold text-on-surface">Bounce Trend</h3>
+      </div>
+      <div style="height:220px;position:relative">
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div class="flex gap-5 mt-4 text-xs font-bold">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-error inline-block"></span>Hard</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-tertiary inline-block"></span>Soft</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-outline inline-block"></span>Unknown</span>
+      </div>
+    </div>
+
+    <!-- Category Donut -->
+    <div class="bg-surface-container-lowest rounded-2xl p-6 flex flex-col">
+      <div class="mb-5">
+        <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Breakdown</span>
+        <h3 class="text-lg font-bold text-on-surface">By Category</h3>
+      </div>
+      <div style="height:180px;position:relative">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div id="donut-legend" class="mt-4 flex flex-col gap-2"></div>
+    </div>
+  </section>
+
+  <!-- Tables Row -->
+  <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+    <!-- Subcategories -->
+    <div class="bg-surface-container-low rounded-2xl p-6">
+      <div class="mb-5">
+        <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Diagnosis</span>
+        <h3 class="text-lg font-bold text-on-surface">Top Bounce Reasons</h3>
+      </div>
+      <div id="subcategory-list" class="flex flex-col gap-2"></div>
+    </div>
+
+    <!-- SMTP Codes -->
+    <div class="bg-surface-container-low rounded-2xl p-6">
+      <div class="mb-5">
+        <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Technical</span>
+        <h3 class="text-lg font-bold text-on-surface">Top SMTP Codes</h3>
+      </div>
+      <div id="smtp-list" class="flex flex-col gap-2"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="h-20"></div>
+<footer class="mt-24 py-12 px-8 bg-surface-container-low" style="border-top:1px solid #ebdede40">
+  <div class="text-center text-sm font-bold tracking-wider uppercase text-on-surface-variant flex items-center justify-center gap-2">
+    Done by Redpill Linpro CX with <span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">favorite</span>
+  </div>
+</footer>
+
+<script>
+const PRIMARY = '#f64d50';
+const SECONDARY = '#006a62';
+const TERTIARY = '#8e4a0c';
+const ERROR = '#ba1a1a';
+const OUTLINE = '#857373';
+const ON_SURFACE = '#201a1a';
+const ON_SURFACE_VARIANT = '#534343';
+const SURFACE_CONTAINER = '#eeeeee';
+
+let trendChart = null;
+let donutChart = null;
+
+const DONUT_COLORS = [ERROR, TERTIARY, OUTLINE, SECONDARY, PRIMARY, '#5b6e7c', '#6b7280'];
+
+document.addEventListener('DOMContentLoaded', () => {
+    const startIn = document.getElementById('start-date');
+    const endIn = document.getElementById('end-date');
+    const s = localStorage.getItem('dashboardStart');
+    const e = localStorage.getItem('dashboardEnd');
+    if (s && startIn) startIn.value = s;
+    if (e && endIn) endIn.value = e;
+
+    loadBounces(s, e);
+
+    const onChange = () => {
+        if (startIn.value && endIn.value) {
+            localStorage.setItem('dashboardStart', startIn.value);
+            localStorage.setItem('dashboardEnd', endIn.value);
+            loadBounces(startIn.value, endIn.value);
+        }
+    };
+    if (startIn) startIn.addEventListener('change', onChange);
+    if (endIn) endIn.addEventListener('change', onChange);
+});
+
+async function loadBounces(start, end) {
+    const qs = start && end ? `?start=${start}&end=${end}` : '';
+    const data = await fetch(`/api/bounces${qs}`).then(r => r.json()).catch(() => null);
+    if (!data) return;
+
+    const hard = data.byCategory.find(c => c.name.toLowerCase().includes('hard'))?.count || 0;
+    const soft = data.byCategory.find(c => c.name.toLowerCase().includes('soft'))?.count || 0;
+    const unknown = data.total - hard - soft;
+
+    setText('b-total', data.total.toLocaleString());
+    setText('b-hard', hard.toLocaleString());
+    setText('b-soft', soft.toLocaleString());
+    setText('b-unknown', Math.max(0, unknown).toLocaleString());
+
+    setTimeout(() => {
+        setBar('bar-hard', data.total > 0 ? (hard / data.total) * 100 : 0);
+        setBar('bar-soft', data.total > 0 ? (soft / data.total) * 100 : 0);
+        setBar('bar-unknown', data.total > 0 ? (unknown / data.total) * 100 : 0);
+    }, 100);
+
+    renderTrend(data.trend);
+    renderDonut(data.byCategory, data.total);
+    renderList('subcategory-list', data.topSubcategories, data.total, 'name');
+    renderSmtpList(data.topCodes, data.total);
+}
+
+function renderTrend(trend) {
+    const canvas = document.getElementById('trendChart');
+    if (!canvas) return;
+    const labels = trend.map(d => {
+        const dt = new Date(d.date);
+        return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    });
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label: 'Hard', data: trend.map(d => d.hard), backgroundColor: ERROR + 'cc', borderRadius: 4, borderSkipped: false },
+                { label: 'Soft', data: trend.map(d => d.soft), backgroundColor: TERTIARY + 'cc', borderRadius: 4, borderSkipped: false },
+                { label: 'Unknown', data: trend.map(d => d.unknown), backgroundColor: OUTLINE + '80', borderRadius: 4, borderSkipped: false }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#ffffff', titleColor: ON_SURFACE, bodyColor: ON_SURFACE_VARIANT,
+                    borderColor: '#ebdede', borderWidth: 1, padding: 12,
+                    titleFont: { family: 'Manrope', weight: '700', size: 13 },
+                    bodyFont: { family: 'Manrope', size: 12 }
+                }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Manrope', size: 10 }, color: ON_SURFACE_VARIANT, maxTicksLimit: 12 } },
+                y: { stacked: true, grid: { color: SURFACE_CONTAINER }, border: { display: false }, ticks: { font: { family: 'Manrope', size: 11 }, color: ON_SURFACE_VARIANT } }
+            }
+        }
+    });
+}
+
+function renderDonut(categories, total) {
+    const canvas = document.getElementById('donutChart');
+    const legend = document.getElementById('donut-legend');
+    if (!canvas || !categories.length) return;
+    if (donutChart) donutChart.destroy();
+
+    const sorted = [...categories].sort((a, b) => b.count - a.count);
+    donutChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: sorted.map(c => c.name),
+            datasets: [{
+                data: sorted.map(c => c.count),
+                backgroundColor: DONUT_COLORS.slice(0, sorted.length),
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, cutout: '72%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#ffffff', titleColor: ON_SURFACE, bodyColor: ON_SURFACE_VARIANT,
+                    borderColor: '#ebdede', borderWidth: 1, padding: 12,
+                    titleFont: { family: 'Manrope', weight: '700', size: 13 },
+                    bodyFont: { family: 'Manrope', size: 12 },
+                    callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${total > 0 ? ((ctx.raw/total)*100).toFixed(1) : 0}%)` }
+                }
+            }
+        }
+    });
+
+    if (legend) {
+        legend.innerHTML = sorted.map((c, i) => `
+            <div class="flex items-center justify-between text-xs font-medium">
+                <span class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${DONUT_COLORS[i] || OUTLINE}"></span>
+                    <span class="text-on-surface-variant">${escHtml(c.name)}</span>
+                </span>
+                <span class="font-bold text-on-surface">${c.count} <span class="text-on-surface-variant font-medium">(${total > 0 ? ((c.count/total)*100).toFixed(1) : 0}%)</span></span>
+            </div>
+        `).join('');
+    }
+}
+
+function renderList(containerId, items, total, nameKey) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = items.map(item => {
+        const pct = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+        const barW = Math.min(100, (item.count / (items[0]?.count || 1)) * 100);
+        return `
+        <div class="bg-surface-container-lowest rounded-xl p-4 fade-in">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-on-surface">${escHtml(item[nameKey])}</span>
+                <span class="text-xs font-bold text-primary">${item.count} <span class="text-on-surface-variant font-medium">(${pct}%)</span></span>
+            </div>
+            <div class="h-1 w-full bg-surface-container rounded-full overflow-hidden">
+                <div class="kpi-bar bg-primary h-full" style="width:${barW}%"></div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderSmtpList(codes, total) {
+    const el = document.getElementById('smtp-list');
+    if (!el) return;
+    el.innerHTML = codes.map(c => {
+        const pct = total > 0 ? ((c.count / total) * 100).toFixed(1) : 0;
+        const barW = Math.min(100, (c.count / (codes[0]?.count || 1)) * 100);
+        const isHard = c.code && c.code.startsWith('5');
+        const color = isHard ? 'bg-error' : 'bg-tertiary';
+        const textColor = isHard ? 'text-error' : 'text-tertiary';
+        return `
+        <div class="bg-surface-container-lowest rounded-xl p-4 fade-in">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-extrabold px-2 py-0.5 rounded-lg ${textColor} bg-surface-container">${escHtml(c.code)}</span>
+                    <span class="text-sm font-bold text-on-surface">${isHard ? 'Permanent failure' : 'Temporary failure'}</span>
+                </div>
+                <span class="text-xs font-bold text-on-surface">${c.count} <span class="text-on-surface-variant font-medium">(${pct}%)</span></span>
+            </div>
+            <div class="h-1 w-full bg-surface-container rounded-full overflow-hidden">
+                <div class="kpi-bar ${color} h-full" style="width:${barW}%"></div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function setBar(id, pct) { const el = document.getElementById(id); if (el) el.style.width = Math.max(0, Math.min(100, pct)) + '%'; }
+function escHtml(v) {
+    return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>

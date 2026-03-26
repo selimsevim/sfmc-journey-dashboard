@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Journey Details | Redpill Linpro CX</title>
+<script src="/js/config.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-tint": "#f64d50",
+          "primary-container": "#ffe8e8",
+          "tertiary-fixed-dim": "#ffb784",
+          "background": "#fdfcfc",
+          "on-error": "#ffffff",
+          "primary-fixed": "#ffdad9",
+          "on-primary-container": "#410008",
+          "inverse-on-surface": "#f1f1f1",
+          "surface-container-low": "#f9f1f1",
+          "on-secondary-fixed": "#00201d",
+          "secondary-fixed-dim": "#6ed8cc",
+          "error": "#ba1a1a",
+          "surface-dim": "#dadada",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed-variant": "#00504a",
+          "surface": "#fdfcfc",
+          "on-secondary-container": "#007169",
+          "surface-container": "#f1e7e7",
+          "surface-container-high": "#e8e0e0",
+          "on-tertiary-fixed-variant": "#713700",
+          "on-primary-fixed-variant": "#930018",
+          "surface-container-lowest": "#ffffff",
+          "on-tertiary-container": "#fffbff",
+          "primary": "#f64d50",
+          "outline-variant": "#d8c2c2",
+          "on-secondary": "#ffffff",
+          "on-primary-fixed": "#410008",
+          "tertiary-fixed": "#ffdcc5",
+          "inverse-surface": "#2f3131",
+          "tertiary": "#8e4a0c",
+          "surface-container-highest": "#e2dada",
+          "inverse-primary": "#ffb3b5",
+          "secondary": "#006a62",
+          "on-surface-variant": "#534343",
+          "error-container": "#ffdad6",
+          "primary-fixed-dim": "#ffb3b5",
+          "on-tertiary-fixed": "#301400",
+          "on-background": "#201a1a",
+          "on-surface": "#201a1a",
+          "on-tertiary": "#ffffff",
+          "outline": "#857373",
+          "surface-bright": "#fdfcfc",
+          "tertiary-container": "#ac6224",
+          "secondary-container": "#8bf4e8",
+          "surface-variant": "#f4dddd",
+          "on-primary": "#ffffff",
+          "secondary-fixed": "#8bf4e8"
+        },
+        fontFamily: { "headline": ["Manrope"], "body": ["Manrope"], "label": ["Manrope"] },
+        borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Manrope', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .kpi-bar { transition: width 0.9s cubic-bezier(.4,0,.2,1); }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .step-connector { position:absolute; left:23px; top:48px; width:2px; background: #d8c2c2; }
+  .rate-good { color: #006a62; }
+  .rate-warn { color: #8e4a0c; }
+  .rate-bad { color: #ba1a1a; }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+
+<!-- Nav -->
+<header class="bg-white/80 backdrop-blur-md fixed top-0 w-full z-50" style="box-shadow:0 1px 0 #d8c2c240">
+<nav class="flex justify-between items-center w-full px-8 py-4">
+  <div class="flex items-center gap-6">
+    <a href="/" class="text-xl font-extrabold tracking-tight text-primary" data-brand>Redpill Linpro CX</a>
+    <div class="hidden md:flex items-center gap-1 text-sm font-medium text-on-surface-variant">
+      <a href="/" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Dashboard</a>
+      <a href="/bounces" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Deliverability</a>
+      <a href="/links" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Link Analytics</a>
+      <a href="/settings" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Settings</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="flex gap-2 items-center bg-primary/10 text-primary border-none rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-primary transition-all">
+      <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+      <input type="date" id="start-date" class="bg-transparent text-sm text-primary outline-none cursor-pointer">
+      <span class="text-primary/70 text-xs font-bold px-1">to</span>
+      <input type="date" id="end-date" class="bg-transparent text-sm text-primary outline-none cursor-pointer">
+    </div>
+  </div>
+</nav>
+</header>
+
+<main class="max-w-5xl mx-auto px-8 pt-32 pb-16">
+
+  <!-- Header -->
+  <header class="mb-12">
+    <a class="inline-flex items-center gap-2 text-primary font-semibold mb-6 group" href="/">
+      <span class="material-symbols-outlined transition-transform group-hover:-translate-x-1">arrow_back</span>
+      <span class="text-sm font-label">Back to Dashboard</span>
+    </a>
+    <span class="text-primary font-bold tracking-wider text-xs uppercase mb-2 block">Journey Performance Details</span>
+    <h1 id="journey-name" class="text-3xl md:text-5xl font-extrabold text-on-surface tracking-tight leading-snug">Loading…</h1>
+  </header>
+
+  <!-- KPI Cards -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-12">
+    <div class="bg-surface-container-lowest p-6 rounded-2xl" style="border:1px solid #d8c2c240">
+      <span class="text-primary font-bold text-xs uppercase tracking-widest block mb-3">Total Sent</span>
+      <span id="total-pop" class="text-4xl font-extrabold text-on-surface tracking-tighter">-</span>
+      <div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div class="kpi-bar bg-primary h-full w-full"></div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest p-6 rounded-2xl" style="border:1px solid #d8c2c240">
+      <span class="text-primary font-bold text-xs uppercase tracking-widest block mb-3">Total Opens</span>
+      <span id="total-opens" class="text-4xl font-extrabold text-on-surface tracking-tighter">-</span>
+      <div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="bar-opens" class="kpi-bar bg-primary h-full" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest p-6 rounded-2xl" style="border:1px solid #d8c2c240">
+      <span class="text-primary font-bold text-xs uppercase tracking-widest block mb-3">Total Clicks</span>
+      <span id="total-clicks" class="text-4xl font-extrabold text-on-surface tracking-tighter">-</span>
+      <div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="bar-clicks" class="kpi-bar bg-secondary h-full" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="bg-surface-container-lowest p-6 rounded-2xl" style="border:1px solid #d8c2c240">
+      <span class="text-primary font-bold text-xs uppercase tracking-widest block mb-3">Overall CTOR</span>
+      <span id="total-ctor" class="text-4xl font-extrabold text-on-surface tracking-tighter">-</span>
+      <div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+        <div id="bar-ctor" class="kpi-bar bg-secondary h-full" style="width:0%"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step Performance Chart -->
+  <section class="bg-surface-container-lowest rounded-2xl p-6 mb-12" style="border:1px solid #d8c2c240">
+    <div class="mb-5">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Per-Step Analysis</span>
+      <h3 class="text-lg font-bold text-on-surface">Email Step Performance</h3>
+    </div>
+    <div style="height:220px; position:relative">
+      <canvas id="stepChart"></canvas>
+    </div>
+    <div class="flex gap-5 mt-4 text-xs font-bold">
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary inline-block"></span>Open Rate</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-secondary inline-block"></span>Click Rate</span>
+    </div>
+  </section>
+
+  <!-- Step-by-Step Breakdown -->
+  <section class="mb-16">
+    <div class="flex items-center justify-between mb-10">
+      <h2 class="text-2xl font-bold text-on-surface">Journey Flow Breakdown</h2>
+      <span id="step-count" class="text-on-surface-variant font-bold text-sm">— Steps</span>
+    </div>
+    <div id="journey-steps" class="space-y-4 relative"></div>
+  </section>
+
+</main>
+
+<footer class="mt-24 py-12 px-8 bg-surface-container-low" style="border-top:1px solid #d8c2c240">
+  <div class="text-center text-sm font-bold tracking-wider uppercase text-on-surface-variant flex items-center justify-center gap-2">
+    Done by Redpill Linpro CX with <span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">favorite</span>
+  </div>
+</footer>
+
+<script src="/js/journey.js"></script>
+</body>
+</html>

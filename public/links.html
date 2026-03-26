@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Link Analytics | Redpill Linpro CX</title>
+<script src="/js/config.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-tint": "#f64d50",
+          "primary-container": "#fde4e4",
+          "background": "#fdfdfd",
+          "on-error": "#ffffff",
+          "primary-fixed": "#ffdad9",
+          "on-primary-container": "#41000a",
+          "inverse-on-surface": "#f1f1f1",
+          "surface-container-low": "#f7f7f7",
+          "secondary-fixed-dim": "#6ed8cc",
+          "error": "#ba1a1a",
+          "surface-dim": "#dadada",
+          "surface": "#fdfdfd",
+          "on-secondary-container": "#007169",
+          "surface-container": "#eeeeee",
+          "surface-container-high": "#e8e8e8",
+          "surface-container-lowest": "#ffffff",
+          "primary": "#f64d50",
+          "outline-variant": "#ebdede",
+          "on-secondary": "#ffffff",
+          "tertiary-fixed": "#ffdcc5",
+          "inverse-surface": "#2f3131",
+          "tertiary": "#8e4a0c",
+          "surface-container-highest": "#e2e2e2",
+          "inverse-primary": "#ffb3b4",
+          "secondary": "#006a62",
+          "on-surface-variant": "#534343",
+          "error-container": "#ffdad6",
+          "on-background": "#201a1a",
+          "on-surface": "#201a1a",
+          "on-tertiary": "#ffffff",
+          "outline": "#857373",
+          "tertiary-container": "#ac6224",
+          "secondary-container": "#8bf4e8",
+          "surface-variant": "#f4dddd",
+          "on-primary": "#ffffff",
+          "secondary-fixed": "#8bf4e8"
+        },
+        fontFamily: { "headline": ["Manrope"], "body": ["Manrope"], "label": ["Manrope"] },
+        borderRadius: {"DEFAULT": "0.125rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Manrope', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .kpi-bar { transition: width 0.9s cubic-bezier(.4,0,.2,1); }
+
+  /* Heatmap */
+  .heatmap-grid { display: grid; grid-template-columns: 48px repeat(24, 1fr); gap: 2px; }
+  .heatmap-cell { border-radius: 3px; height: 24px; transition: opacity 0.2s; cursor: default; }
+  .heatmap-cell:hover { outline: 2px solid #f64d50; outline-offset: 1px; }
+  .heatmap-label { font-size: 10px; font-weight: 600; color: #534343; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+  .heatmap-hour-label { font-size: 9px; font-weight: 600; color: #534343; text-align: center; padding: 2px 0; }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+
+<!-- Nav -->
+<header class="bg-white/80 backdrop-blur-md fixed top-0 w-full z-50" style="box-shadow:0 1px 0 #ebdede40">
+<nav class="flex justify-between items-center w-full px-8 py-4">
+  <div class="flex items-center gap-6">
+    <a href="/" class="text-xl font-extrabold tracking-tight text-primary" data-brand>Redpill Linpro CX</a>
+    <div class="hidden md:flex items-center gap-1 text-sm font-medium text-on-surface-variant">
+      <a href="/" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Dashboard</a>
+      <a href="/bounces" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Deliverability</a>
+      <a href="/links" class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-bold">Link Analytics</a>
+      <a href="/settings" class="px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors">Settings</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="hidden md:flex items-center gap-2 bg-primary/10 text-primary border-none rounded-xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-primary transition-all">
+      <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+      <input type="date" id="start-date" class="bg-transparent text-sm text-primary outline-none cursor-pointer">
+      <span class="text-primary/70 text-xs font-bold px-1">to</span>
+      <input type="date" id="end-date" class="bg-transparent text-sm text-primary outline-none cursor-pointer">
+    </div>
+  </div>
+</nav>
+</header>
+
+<main class="pt-32 pb-16 px-8 max-w-[1400px] mx-auto">
+
+  <!-- Hero -->
+  <section class="mb-12">
+    <span class="text-primary font-bold text-xs tracking-widest uppercase mb-2 block">Link Performance</span>
+    <h1 class="text-5xl font-extrabold text-on-surface tracking-tight mb-4">Link Analytics</h1>
+    <p class="text-on-surface-variant max-w-2xl leading-relaxed">Discover which links and CTAs drive the most engagement. Understand click patterns by time-of-day and day-of-week to optimize your send schedule.</p>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Total Clicks</span>
+      <span id="l-total" class="text-3xl font-extrabold text-on-surface">-</span>
+    </div>
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-secondary text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Unique Clicks</span>
+      <span id="l-unique" class="text-3xl font-extrabold text-secondary">-</span>
+    </div>
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Unique Links</span>
+      <span id="l-links" class="text-3xl font-extrabold text-on-surface">-</span>
+    </div>
+    <div class="bg-surface-container-lowest p-5 rounded-xl hover:shadow-lg hover:shadow-primary/5 transition-all">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase mb-1 block">Top CTA</span>
+      <span id="l-top" class="text-lg font-extrabold text-on-surface leading-tight">-</span>
+    </div>
+  </section>
+
+  <!-- Bar Chart - Top Links -->
+  <section class="bg-surface-container-lowest rounded-2xl p-6 mb-8">
+    <div class="mb-5">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Ranking</span>
+      <h3 class="text-lg font-bold text-on-surface">Top Links by Click Volume</h3>
+    </div>
+    <div style="height:280px;position:relative">
+      <canvas id="linksChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Heatmap -->
+  <section class="bg-surface-container-lowest rounded-2xl p-6 mb-8">
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Engagement Timing</span>
+        <h3 class="text-lg font-bold text-on-surface">Open Heatmap — Day × Hour</h3>
+        <p class="text-xs text-on-surface-variant mt-1">When are subscribers most likely to open? Darker = higher volume.</p>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-medium text-on-surface-variant">
+        <span>Low</span>
+        <div class="flex gap-0.5">
+          <div class="w-4 h-4 rounded-sm" style="background:#f64d5015"></div>
+          <div class="w-4 h-4 rounded-sm" style="background:#f64d5040"></div>
+          <div class="w-4 h-4 rounded-sm" style="background:#f64d5070"></div>
+          <div class="w-4 h-4 rounded-sm" style="background:#f64d50a0"></div>
+          <div class="w-4 h-4 rounded-sm" style="background:#f64d50"></div>
+        </div>
+        <span>High</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <div id="heatmap-container" style="min-width:700px"></div>
+    </div>
+  </section>
+
+  <!-- Links Table -->
+  <section class="bg-surface-container-low rounded-2xl p-6">
+    <div class="mb-5">
+      <span class="text-primary text-[0.625rem] font-bold tracking-wider uppercase block mb-1">Full List</span>
+      <h3 class="text-lg font-bold text-on-surface">All Links</h3>
+    </div>
+    <div class="grid grid-cols-12 px-4 py-3 text-[0.6875rem] font-bold text-primary uppercase tracking-widest mb-2">
+      <div class="col-span-5">Link Name</div>
+      <div class="col-span-3">URL</div>
+      <div class="col-span-2 text-right">Total Clicks</div>
+      <div class="col-span-2 text-right">Unique</div>
+    </div>
+    <div id="links-table" class="flex flex-col gap-2"></div>
+  </section>
+
+</main>
+
+<div class="h-20"></div>
+<footer class="mt-24 py-12 px-8 bg-surface-container-low" style="border-top:1px solid #ebdede40">
+  <div class="text-center text-sm font-bold tracking-wider uppercase text-on-surface-variant flex items-center justify-center gap-2">
+    Done by Redpill Linpro CX with <span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">favorite</span>
+  </div>
+</footer>
+
+<script>
+const PRIMARY = '#f64d50';
+const SECONDARY = '#006a62';
+const ON_SURFACE = '#201a1a';
+const ON_SURFACE_VARIANT = '#534343';
+const SURFACE_CONTAINER = '#eeeeee';
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+let linksChart = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const startIn = document.getElementById('start-date');
+    const endIn = document.getElementById('end-date');
+    const s = localStorage.getItem('dashboardStart');
+    const e = localStorage.getItem('dashboardEnd');
+    if (s && startIn) startIn.value = s;
+    if (e && endIn) endIn.value = e;
+
+    loadLinks(s, e);
+
+    const onChange = () => {
+        if (startIn.value && endIn.value) {
+            localStorage.setItem('dashboardStart', startIn.value);
+            localStorage.setItem('dashboardEnd', endIn.value);
+            loadLinks(startIn.value, endIn.value);
+        }
+    };
+    if (startIn) startIn.addEventListener('change', onChange);
+    if (endIn) endIn.addEventListener('change', onChange);
+});
+
+async function loadLinks(start, end) {
+    const qs = start && end ? `?start=${start}&end=${end}` : '';
+    const data = await fetch(`/api/links${qs}`).then(r => r.json()).catch(() => null);
+    if (!data) return;
+
+    const { links, heatmap } = data;
+
+    const totalClicks = links.reduce((s, l) => s + l.total, 0);
+    const totalUnique = links.reduce((s, l) => s + l.unique, 0);
+    setText('l-total', totalClicks.toLocaleString());
+    setText('l-unique', totalUnique.toLocaleString());
+    setText('l-links', links.length.toString());
+    setText('l-top', links[0]?.name || '-');
+
+    renderLinksChart(links.slice(0, 10));
+    renderHeatmap(heatmap);
+    renderLinksTable(links, totalClicks);
+}
+
+function renderLinksChart(links) {
+    const canvas = document.getElementById('linksChart');
+    if (!canvas || !links.length) return;
+    if (linksChart) linksChart.destroy();
+
+    const labels = links.map(l => l.name.length > 24 ? l.name.substring(0, 24) + '…' : l.name);
+
+    linksChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Total Clicks',
+                    data: links.map(l => l.total),
+                    backgroundColor: PRIMARY + 'cc',
+                    borderRadius: 6,
+                    borderSkipped: false
+                },
+                {
+                    label: 'Unique Clicks',
+                    data: links.map(l => l.unique),
+                    backgroundColor: SECONDARY + 'cc',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    display: true, position: 'top', align: 'end',
+                    labels: { font: { family: 'Manrope', size: 11, weight: '600' }, color: ON_SURFACE_VARIANT, boxWidth: 10, boxHeight: 10, borderRadius: 3, useBorderRadius: true, padding: 16 }
+                },
+                tooltip: {
+                    backgroundColor: '#ffffff', titleColor: ON_SURFACE, bodyColor: ON_SURFACE_VARIANT,
+                    borderColor: '#ebdede', borderWidth: 1, padding: 12,
+                    titleFont: { family: 'Manrope', weight: '700', size: 13 },
+                    bodyFont: { family: 'Manrope', size: 12 },
+                    callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x.toLocaleString()}` }
+                }
+            },
+            scales: {
+                x: { grid: { color: SURFACE_CONTAINER }, border: { display: false }, ticks: { font: { family: 'Manrope', size: 11 }, color: ON_SURFACE_VARIANT, callback: v => v.toLocaleString() } },
+                y: { grid: { display: false }, border: { display: false }, ticks: { font: { family: 'Manrope', size: 10, weight: '500' }, color: ON_SURFACE_VARIANT } }
+            }
+        }
+    });
+}
+
+function renderHeatmap(heatmap) {
+    const container = document.getElementById('heatmap-container');
+    if (!container || !heatmap) return;
+
+    // Find max for normalization
+    let maxVal = 0;
+    heatmap.forEach(row => row.forEach(v => { if (v > maxVal) maxVal = v; }));
+
+    // Build grid: row per day, col per hour (+ label col)
+    // Hour header row
+    let html = '<div class="heatmap-grid mb-1">';
+    html += '<div class="heatmap-label" style="font-size:9px">Hour →</div>';
+    for (let h = 0; h < 24; h++) {
+        html += `<div class="heatmap-hour-label">${h === 0 ? '12a' : h < 12 ? h+'a' : h === 12 ? '12p' : (h-12)+'p'}</div>`;
+    }
+    html += '</div>';
+
+    for (let d = 0; d < 7; d++) {
+        html += '<div class="heatmap-grid mb-0.5">';
+        html += `<div class="heatmap-label">${DAYS[d]}</div>`;
+        for (let h = 0; h < 24; h++) {
+            const v = heatmap[d][h];
+            const intensity = maxVal > 0 ? v / maxVal : 0;
+            const alpha = Math.round(intensity * 220 + 15);
+            const alphaHex = alpha.toString(16).padStart(2, '0');
+            const title = `${DAYS[d]} ${h}:00 — ${v.toLocaleString()} opens`;
+            html += `<div class="heatmap-cell" style="background:${PRIMARY}${alphaHex}" title="${title}"></div>`;
+        }
+        html += '</div>';
+    }
+
+    container.innerHTML = html;
+}
+
+function renderLinksTable(links, totalClicks) {
+    const el = document.getElementById('links-table');
+    if (!el) return;
+    el.innerHTML = links.map((l, i) => {
+        const pct = totalClicks > 0 ? ((l.total / totalClicks) * 100).toFixed(1) : 0;
+        const shortUrl = l.url.replace(/^https?:\/\//, '').split('/')[0];
+        return `
+        <div class="grid grid-cols-12 px-4 py-4 items-center bg-surface-container-lowest rounded-xl hover:shadow-md transition-all fade-in group">
+            <div class="col-span-5 flex items-center gap-3">
+                <span class="text-xs font-extrabold text-on-surface-variant w-5 flex-shrink-0">${i + 1}</span>
+                <div class="min-w-0">
+                    <p class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors truncate">${escHtml(l.name)}</p>
+                    <div class="mt-1.5 h-1 bg-surface-container rounded-full overflow-hidden w-full max-w-[160px]">
+                        <div class="kpi-bar bg-primary h-full" style="width:${pct}%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-3 text-xs text-on-surface-variant truncate font-medium">${escHtml(shortUrl)}</div>
+            <div class="col-span-2 text-right">
+                <span class="font-extrabold text-on-surface">${l.total.toLocaleString()}</span>
+                <span class="text-xs text-on-surface-variant font-medium ml-1">(${pct}%)</span>
+            </div>
+            <div class="col-span-2 text-right font-bold text-secondary">${l.unique.toLocaleString()}</div>
+        </div>`;
+    }).join('');
+}
+
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function escHtml(v) {
+    return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+</body>
+</html>
