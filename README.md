@@ -2,6 +2,10 @@
 
 A self-hosted analytics dashboard for Salesforce Marketing Cloud (SFMC) Journey Builder. Visualises email engagement, deliverability, link performance, and per-journey metrics from CSV data exports, with optional live enrichment from the SFMC Journey Builder API.
 
+![Journey Dashboard Demo](demo.png)
+
+you can watch demo here: https://www.linkedin.com/feed/update/urn:li:activity:7442926383372226560/?originTrackingId=HjZbwFgsKuajP147WQTelg%3D%3D
+
 ---
 
 ## Features
