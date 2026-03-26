@@ -4,7 +4,7 @@ A self-hosted analytics dashboard for Salesforce Marketing Cloud (SFMC) Journey 
 
 ![Journey Dashboard Demo](demo.png)
 
-you can watch demo here: https://www.linkedin.com/feed/update/urn:li:activity:7442926383372226560/?originTrackingId=HjZbwFgsKuajP147WQTelg%3D%3D
+You can watch demo here: https://www.linkedin.com/feed/update/urn:li:activity:7442926383372226560/?originTrackingId=HjZbwFgsKuajP147WQTelg%3D%3D
 
 ---
 
